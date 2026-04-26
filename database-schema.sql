@@ -64,3 +64,30 @@ CREATE POLICY "Users can configure their donor profile." ON donors FOR ALL USING
 CREATE POLICY "Requests are viewable by everyone." ON requests FOR SELECT USING (true);
 CREATE POLICY "Users can create requests." ON requests FOR INSERT WITH CHECK (auth.uid() = requester_id);
 CREATE POLICY "Users can update their own requests." ON requests FOR UPDATE USING (auth.uid() = requester_id);
+
+-- 6. Donations (Donation History) Table
+CREATE TABLE donations (
+    donation_id SERIAL PRIMARY KEY,
+    donor_id UUID REFERENCES donors(id) ON DELETE CASCADE,
+    donation_date DATE NOT NULL,
+    remarks TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now())
+);
+
+-- 7. Notifications Table
+CREATE TABLE notifications (
+    notification_id SERIAL PRIMARY KEY,
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now())
+);
+
+-- Enable RLS for new tables
+ALTER TABLE donations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+
+-- Policies for Donations and Notifications
+CREATE POLICY "Donors can view their own history." ON donations FOR SELECT USING (auth.uid() = donor_id);
+CREATE POLICY "Users can view their own notifications." ON notifications FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can update their own notifications (mark as read)." ON notifications FOR UPDATE USING (auth.uid() = user_id);

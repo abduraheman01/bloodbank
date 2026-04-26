@@ -1,9 +1,13 @@
-import { AlertCircle, MapPin, Clock, Droplet, Plus } from 'lucide-react';
+import { AlertCircle, MapPin, Clock, Droplet, Plus, CheckCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import { closeRequest } from '../actions/closeRequest';
+import AcceptRequestButton from '@/components/AcceptRequestButton';
 
 export default async function RequestsPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   const { data: dbRequests } = await supabase
     .from('requests')
     .select('*, blood_groups(name)')
@@ -11,8 +15,10 @@ export default async function RequestsPage() {
 
   const displayedRequests = dbRequests?.map(r => ({
     id: r.id,
+    requester_id: r.requester_id,
     bloodGroup: r.blood_groups?.name || '?',
     location: `${r.hospital_name}, ${r.location}`,
+    contact_number: r.contact_number,
     urgency: r.urgency,
     time: new Date(r.created_at).toLocaleDateString(),
     status: r.status,
@@ -67,11 +73,27 @@ export default async function RequestsPage() {
               </div>
             </div>
 
-            <div className="w-full sm:w-auto">
-              <button disabled={req.status !== 'Open'} className={`w-full sm:w-auto px-6 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 ${req.status === 'Open' ? 'bg-gray-900 hover:bg-gray-800 text-white shadow-lg' : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}>
-                <Droplet className="w-4 h-4" />
-                {req.status === 'Open' ? 'Accept Request' : 'Fulfilled'}
-              </button>
+            <div className="w-full sm:w-auto flex flex-col gap-2">
+              {req.status === 'Open' ? (
+                <AcceptRequestButton contactNumber={req.contact_number} />
+              ) : (
+                <button disabled className="w-full sm:w-auto px-6 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 bg-gray-200 text-gray-500 cursor-not-allowed">
+                  <Droplet className="w-4 h-4" />
+                  Fulfilled
+                </button>
+              )}
+              
+              {user && user.id === req.requester_id && req.status === 'Open' && (
+                <form action={async () => {
+                  'use server';
+                  await closeRequest(req.id);
+                }}>
+                  <button type="submit" className="w-full sm:w-auto px-6 py-2 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 border border-green-500 text-green-600 hover:bg-green-50">
+                    <CheckCircle className="w-4 h-4" />
+                    Mark Fulfilled
+                  </button>
+                </form>
+              )}
             </div>
             
           </div>

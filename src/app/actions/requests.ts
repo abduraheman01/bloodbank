@@ -33,5 +33,24 @@ export async function createRequest(formData: FormData) {
     redirect('/requests/new?error=' + encodeURIComponent(error.message))
   }
 
+  // Find matching donors in the same location (simple matching)
+  const { data: matchingDonors } = await supabase
+    .from('donors')
+    .select('id')
+    .eq('blood_group_id', parseInt(bloodGroupId, 10))
+    .ilike('city', `%${location}%`)
+    .eq('is_available', true)
+
+  if (matchingDonors && matchingDonors.length > 0) {
+    const notifications = matchingDonors.map(donor => ({
+      user_id: donor.id,
+      message: `URGENT: Blood request for ${patientName} (${location}). Please check Live Requests.`,
+      is_read: false
+    }))
+    
+    // Insert notifications for all matched donors
+    await supabase.from('notifications').insert(notifications)
+  }
+
   redirect('/requests')
 }
