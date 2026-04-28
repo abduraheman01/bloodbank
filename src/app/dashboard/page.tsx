@@ -33,7 +33,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">Donor Dashboard</h1>
+      <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">
+        {profile?.role === 'donor' ? 'Donor Dashboard' : 'User Dashboard'}
+      </h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
         <div className="lg:col-span-2 bg-gradient-to-br from-red-600 to-red-500 rounded-3xl p-8 text-white shadow-xl shadow-red-500/20 relative overflow-hidden flex flex-col justify-between">
@@ -44,19 +46,23 @@ export default async function DashboardPage() {
                 <p className="text-red-100 font-medium mb-1">Welcome back,</p>
                 <h2 className="text-3xl font-bold">{fullName}</h2>
               </div>
-              <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
-                <span className="text-2xl font-black tracking-tighter">{bloodGroup}</span>
-              </div>
+              {profile?.role === 'donor' && (
+                <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+                  <span className="text-2xl font-black tracking-tighter">{bloodGroup}</span>
+                </div>
+              )}
             </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-auto">
-              <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm text-sm font-medium">
-                <MapPin className="w-4 h-4" /> {city}
+            {profile?.role === 'donor' && (
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-auto">
+                <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm text-sm font-medium">
+                  <MapPin className="w-4 h-4" /> {city}
+                </div>
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold ${isEligible ? 'bg-green-400 text-green-900' : 'bg-red-400 text-white'}`}>
+                  {isEligible ? <BadgeCheck className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
+                  {isEligible ? 'Ready to Donate' : 'In 90-Day Cooldown'}
+                </div>
               </div>
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold ${isEligible ? 'bg-green-400 text-green-900' : 'bg-red-400 text-white'}`}>
-                {isEligible ? <BadgeCheck className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
-                {isEligible ? 'Ready to Donate' : 'In 90-Day Cooldown'}
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -98,76 +104,78 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Log Donation Form */}
-        <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm h-full">
-          <div className="flex items-center gap-2 mb-6 text-red-600">
-            <PlusCircle className="w-6 h-6" />
-            <h3 className="text-xl font-bold text-gray-900">Log New Donation</h3>
-          </div>
-          <form action={logDonation} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Donation</label>
-              <input 
-                type="date" 
-                name="donation_date" 
-                required
-                max={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none transition-all"
-              />
+      {profile?.role === 'donor' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {/* Log Donation Form */}
+          <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm h-full">
+            <div className="flex items-center gap-2 mb-6 text-red-600">
+              <PlusCircle className="w-6 h-6" />
+              <h3 className="text-xl font-bold text-gray-900">Log New Donation</h3>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Remarks (Hospital / Camp)</label>
-              <input 
-                type="text" 
-                name="remarks" 
-                placeholder="e.g., Red Cross Blood Camp"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none transition-all"
-              />
-            </div>
-            <button 
-              type="submit"
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition-all active:scale-[0.98]"
-            >
-              Save Donation Record
-            </button>
-          </form>
-        </div>
-
-        {/* History */}
-        <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm h-full">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-900">Donation History</h3>
+            <form action={logDonation} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date of Donation</label>
+                <input 
+                  type="date" 
+                  name="donation_date" 
+                  required
+                  max={new Date().toISOString().split('T')[0]}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Remarks (Hospital / Camp)</label>
+                <input 
+                  type="text" 
+                  name="remarks" 
+                  placeholder="e.g., Red Cross Blood Camp"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                />
+              </div>
+              <button 
+                type="submit"
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-xl transition-all active:scale-[0.98]"
+              >
+                Save Donation Record
+              </button>
+            </form>
           </div>
 
-          <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-            {donationsHistory && donationsHistory.length > 0 ? (
-              donationsHistory.map((entry, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 rounded-xl border border-gray-50 bg-gray-50">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-400 border border-gray-100">
-                      <Calendar className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900">{entry.remarks || 'Standard Donation'}</div>
-                      <div className="text-sm text-gray-500">
-                        {new Date(entry.donation_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+          {/* History */}
+          <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm h-full">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">Donation History</h3>
+            </div>
+
+            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+              {donationsHistory && donationsHistory.length > 0 ? (
+                donationsHistory.map((entry, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-4 rounded-xl border border-gray-50 bg-gray-50">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-gray-400 border border-gray-100">
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">{entry.remarks || 'Standard Donation'}</div>
+                        <div className="text-sm text-gray-500">
+                          {new Date(entry.donation_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </div>
                       </div>
                     </div>
+                    <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full whitespace-nowrap">
+                      Completed
+                    </span>
                   </div>
-                  <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full whitespace-nowrap">
-                    Completed
-                  </span>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500 text-sm">
+                  No donations recorded yet. Log your first donation!
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-gray-500 text-sm">
-                No donations recorded yet. Log your first donation!
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

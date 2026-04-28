@@ -34,12 +34,15 @@ export async function createRequest(formData: FormData) {
   }
 
   // Find matching donors in the same location (simple matching)
-  const { data: matchingDonors } = await supabase
+  console.log('Searching for donors with blood group:', bloodGroupId, 'and location:', location)
+  const { data: matchingDonors, error: donorSearchError } = await supabase
     .from('donors')
     .select('id')
     .eq('blood_group_id', parseInt(bloodGroupId, 10))
     .ilike('city', `%${location}%`)
     .eq('is_available', true)
+
+  console.log('Donor search result:', matchingDonors, 'Error:', donorSearchError)
 
   if (matchingDonors && matchingDonors.length > 0) {
     const notifications = matchingDonors.map(donor => ({
@@ -48,8 +51,12 @@ export async function createRequest(formData: FormData) {
       is_read: false
     }))
     
+    console.log('Inserting notifications:', notifications)
     // Insert notifications for all matched donors
-    await supabase.from('notifications').insert(notifications)
+    const { error: insertError } = await supabase.from('notifications').insert(notifications)
+    console.log('Notification insert error:', insertError)
+  } else {
+    console.log('No matching donors found for notification.')
   }
 
   redirect('/requests')

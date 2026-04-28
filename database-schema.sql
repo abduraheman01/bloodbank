@@ -90,4 +90,5 @@ ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 -- Policies for Donations and Notifications
 CREATE POLICY "Donors can view their own history." ON donations FOR SELECT USING (auth.uid() = donor_id);
 CREATE POLICY "Users can view their own notifications." ON notifications FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "System can insert notifications." ON notifications FOR INSERT WITH CHECK (true);
 CREATE POLICY "Users can update their own notifications (mark as read)." ON notifications FOR UPDATE USING (auth.uid() = user_id);

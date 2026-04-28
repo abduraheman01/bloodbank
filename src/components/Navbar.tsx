@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Droplet, Menu, Bell } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { signout } from '@/app/actions/auth'
 
 export default async function Navbar() {
   const supabase = await createClient()
@@ -47,15 +48,22 @@ export default async function Navbar() {
                   </span>
                 )}
               </Link>
+              <form action={signout}>
+                <button type="submit" className="text-gray-600 hover:text-red-500 transition-colors font-medium">
+                  Log out
+                </button>
+              </form>
             </>
           ) : (
-            <Link href="/login" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">
-              Log in
-            </Link>
+            <>
+              <Link href="/login" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">
+                Log in
+              </Link>
+              <Link href="/register" className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-full font-medium transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-red-500/30">
+                Donate Now
+              </Link>
+            </>
           )}
-          <Link href="/register" className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-full font-medium transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-red-500/30">
-            Donate Now
-          </Link>
         </div>
 
         <button className="md:hidden p-2 text-gray-600">
