@@ -41,7 +41,7 @@ export default function Home() {
             By leveraging Supabase subscriptions, our 'Available Donors' list and 'Urgent Requests' update instantly without page refreshes.
           </p>
         </div>
-        
+
         <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
           <div className="w-14 h-14 rounded-xl bg-red-100 flex items-center justify-center mb-6">
             <ShieldCheck className="w-7 h-7 text-red-600" />

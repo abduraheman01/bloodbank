@@ -33,16 +33,12 @@ export async function createRequest(formData: FormData) {
     redirect('/requests/new?error=' + encodeURIComponent(error.message))
   }
 
-  // Find matching donors in the same location (simple matching)
-  console.log('Searching for donors with blood group:', bloodGroupId, 'and location:', location)
-  const { data: matchingDonors, error: donorSearchError } = await supabase
+  const { data: matchingDonors } = await supabase
     .from('donors')
     .select('id')
     .eq('blood_group_id', parseInt(bloodGroupId, 10))
     .ilike('city', `%${location}%`)
     .eq('is_available', true)
-
-  console.log('Donor search result:', matchingDonors, 'Error:', donorSearchError)
 
   if (matchingDonors && matchingDonors.length > 0) {
     const notifications = matchingDonors.map(donor => ({
@@ -50,13 +46,8 @@ export async function createRequest(formData: FormData) {
       message: `URGENT: Blood request for ${patientName} (${location}). Please check Live Requests.`,
       is_read: false
     }))
-    
-    console.log('Inserting notifications:', notifications)
-    // Insert notifications for all matched donors
-    const { error: insertError } = await supabase.from('notifications').insert(notifications)
-    console.log('Notification insert error:', insertError)
-  } else {
-    console.log('No matching donors found for notification.')
+
+    await supabase.from('notifications').insert(notifications)
   }
 
   redirect('/requests')

@@ -20,7 +20,7 @@ export default async function DashboardPage() {
   const fullName = profile?.full_name || 'Anonymous User'
   const city = donorFields?.city || 'Unknown Location'
   const bloodGroup = donorFields?.blood_groups?.name || 'N/A'
-  
+
   let isEligible = true
   if (donorFields?.last_donation_date) {
     const lastDonation = new Date(donorFields.last_donation_date)
@@ -36,7 +36,7 @@ export default async function DashboardPage() {
       <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-8">
         {profile?.role === 'donor' ? 'Donor Dashboard' : 'User Dashboard'}
       </h1>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
         <div className="lg:col-span-2 bg-gradient-to-br from-red-600 to-red-500 rounded-3xl p-8 text-white shadow-xl shadow-red-500/20 relative overflow-hidden flex flex-col justify-between">
           <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4 blur-3xl"></div>
@@ -84,7 +84,7 @@ export default async function DashboardPage() {
               </form>
             )}
           </div>
-          
+
           <div className="overflow-y-auto pr-2 space-y-3 flex-1">
             {notifications && notifications.length > 0 ? (
               notifications.map((notif: any) => (
@@ -180,7 +180,6 @@ export default async function DashboardPage() {
   );
 }
 
-// Temporary inline import mock for MapPin
 const MapPin = ({ className }: { className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
 );

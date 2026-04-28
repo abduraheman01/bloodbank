@@ -53,7 +53,7 @@ export default async function RequestsPage() {
         )}
         {displayedRequests.map((req) => (
           <div key={req.id} className={`p-6 rounded-2xl border ${req.status === 'Open' ? 'bg-white border-red-100 shadow-sm shadow-red-50' : 'bg-gray-50 border-gray-200 opacity-75'} transition-all hover:shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6`}>
-            
+
             <div className="flex items-center gap-6">
               <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-bold bg-gradient-to-br ${req.status === 'Open' ? 'from-red-500 to-red-600 text-white shadow-inner' : 'from-gray-300 to-gray-400 text-gray-100'}`}>
                 {req.bloodGroup}
@@ -82,7 +82,7 @@ export default async function RequestsPage() {
                   Fulfilled
                 </button>
               )}
-              
+
               {user && user.id === req.requester_id && req.status === 'Open' && (
                 <form action={async () => {
                   'use server';
@@ -95,7 +95,7 @@ export default async function RequestsPage() {
                 </form>
               )}
             </div>
-            
+
           </div>
         ))}
       </div>

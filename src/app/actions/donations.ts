@@ -16,7 +16,6 @@ export async function logDonation(formData: FormData) {
   const dateStr = formData.get('donation_date') as string
   const donationDate = new Date(dateStr)
 
-  // 1. Insert into donations table
   const { error: insertError } = await supabase.from('donations').insert({
     donor_id: user.id,
     donation_date: donationDate.toISOString().split('T')[0], // YYYY-MM-DD
@@ -28,7 +27,6 @@ export async function logDonation(formData: FormData) {
     redirect(`/dashboard?error=${encodeURIComponent(insertError.message)}`)
   }
 
-  // 2. Update last_donation_date in donors table
   const { error: updateError } = await supabase.from('donors')
     .update({ last_donation_date: donationDate.toISOString().split('T')[0] })
     .eq('id', user.id)

@@ -31,7 +31,6 @@ export async function signup(formData: FormData) {
   const phone = formData.get('phone') as string
   const city = formData.get('city') as string
 
-  // 1. Sign up the user in auth.users
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
@@ -45,7 +44,6 @@ export async function signup(formData: FormData) {
     redirect('/register?error=' + encodeURIComponent('Failed to create user account'))
   }
 
-  // 2. Insert into profiles table
   const { error: profileError } = await supabase.from('profiles').insert({
     id: authData.user.id,
     full_name: fullName,
@@ -57,7 +55,6 @@ export async function signup(formData: FormData) {
     redirect('/register?error=' + encodeURIComponent('Failed to create user profile: ' + profileError.message))
   }
 
-  // 3. If the role is donor, insert into donors table
   if (role === 'donor') {
     const { error: donorError } = await supabase.from('donors').insert({
       id: authData.user.id,

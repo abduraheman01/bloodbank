@@ -8,7 +8,7 @@ export default async function AdminDashboardPage() {
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  
+
   if (profile?.role !== 'admin') {
     return (
       <div className="max-w-4xl mx-auto py-16 text-center">
@@ -21,12 +21,10 @@ export default async function AdminDashboardPage() {
     )
   }
 
-  // Fetch Reports Logic
   const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
   const { count: donorCount } = await supabase.from('donors').select('*', { count: 'exact', head: true });
   const { count: activeRequests } = await supabase.from('requests').select('*', { count: 'exact', head: true }).eq('status', 'Open');
-  
-  // Recent 5 Requests
+
   const { data: recentRequests } = await supabase.from('requests').select('*, profiles(full_name), blood_groups(name)').order('created_at', { ascending: false }).limit(5);
 
   return (
@@ -78,7 +76,7 @@ export default async function AdminDashboardPage() {
         <div className="flex justify-between items-center mb-6">
            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><List className="w-5 h-5"/> Recent Blood Requests</h2>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>

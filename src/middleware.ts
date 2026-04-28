@@ -27,21 +27,16 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser().
-  // refresh session if expired
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect /dashboard and /admin routes
   if (!user && (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/admin'))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // Also protect /requests/new
   if (!user && request.nextUrl.pathname.startsWith('/requests/new')) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'

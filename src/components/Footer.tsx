@@ -16,7 +16,7 @@ export default function Footer() {
               A modern, real-time blood bank and donor management system designed to connect donors with recipients efficiently.
             </p>
           </div>
-          
+
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>
             <ul className="space-y-3">
@@ -25,7 +25,7 @@ export default function Footer() {
               <li><a href="/register" className="text-gray-500 hover:text-red-500 transition-colors">Become a Donor</a></li>
             </ul>
           </div>
-          
+
           <div>
             <h3 className="font-semibold text-gray-900 mb-4">Legal</h3>
             <ul className="space-y-3">
@@ -34,7 +34,7 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        
+
         <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-gray-400 text-sm">
             © {new Date().getFullYear()} BBDMS. All rights reserved.

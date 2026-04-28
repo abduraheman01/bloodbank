@@ -11,7 +11,6 @@ export async function closeRequest(requestId: string) {
     throw new Error('Not authenticated')
   }
 
-  // Only allow the requester to close their own request
   const { error } = await supabase
     .from('requests')
     .update({ status: 'Fulfilled' })

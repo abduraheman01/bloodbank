@@ -27,7 +27,7 @@ export default async function Navbar() {
             BBDMS
           </span>
         </Link>
-        
+
         <div className="hidden md:flex items-center gap-6">
           <Link href="/search" className="text-gray-600 hover:text-red-500 transition-colors font-medium">
             Find Donors

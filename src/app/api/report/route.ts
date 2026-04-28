@@ -19,7 +19,7 @@ export async function GET() {
               cookieStore.set(name, value, options)
             )
           } catch {
-            // Ignored outside of server component
+
           }
         },
       },
@@ -36,13 +36,11 @@ export async function GET() {
     return new NextResponse('Forbidden', { status: 403 })
   }
 
-  // Fetch Data to build the CSV
   const { data: profiles } = await supabase.from('profiles').select('*')
   const { data: requests } = await supabase.from('requests').select('*, blood_groups(name)')
 
-  // Simple CSV Construction
   let csvContent = "BBDMS FULL SYSTEM REPORT\n\n";
-  
+
   csvContent += "--- REGISTERED USERS ---\n";
   csvContent += "ID,Name,Email,Role,Registered At\n";
   profiles?.forEach(p => {
@@ -55,7 +53,6 @@ export async function GET() {
     csvContent += `"${r.id}","${r.patient_name}","${r.hospital_name}","${r.location}","${r.blood_groups?.name}","${r.urgency}","${r.status}","${r.created_at}"\n`;
   });
 
-  // Return the CSV file as an attachment
   const now = new Date().toISOString().split('T')[0]
   return new NextResponse(csvContent, {
     headers: {

@@ -9,20 +9,16 @@ export default async function SearchDonorsPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const supabase = await createClient()
-  
-  // Protect this route, maybe only logged-in users can search donors
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login?error=Please login to search donors')
 
-  // Await searchParams properly in Next.js 15
   const params = await searchParams
   const queryCity = typeof params.city === 'string' ? params.city : ''
   const queryGroup = typeof params.blood_group === 'string' ? params.blood_group : ''
 
-  // Fetch blood groups for the dropdown
   const { data: bloodGroups } = await supabase.from('blood_groups').select('*').order('id')
 
-  // Search logic
   let donors: any[] = []
   if (queryCity || queryGroup) {
     let query = supabase
@@ -39,9 +35,9 @@ export default async function SearchDonorsPage({
     if (queryCity) {
       query = query.ilike('city', `%${queryCity}%`)
     }
-    
+
     if (queryGroup) {
-      // Find blood group ID
+
       const targetGroup = bloodGroups?.find(g => g.name === queryGroup)
       if (targetGroup) {
         query = query.eq('blood_group_id', targetGroup.id)
@@ -74,7 +70,7 @@ export default async function SearchDonorsPage({
               className="w-full pl-12 pr-4 py-3 rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-red-500 transition-colors"
             />
           </div>
-          
+
           <div className="relative">
             <Droplet className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <select
@@ -106,13 +102,13 @@ export default async function SearchDonorsPage({
               <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm">{donors.length}</span>
               Donors Found
             </h2>
-            
+
             {donors.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {donors.map((donor, idx) => (
                   <div key={idx} className="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
-                    
+
                     <div className="flex justify-between items-start mb-4">
                       <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
                         <UserIcon className="w-6 h-6 text-gray-500" />
@@ -121,7 +117,7 @@ export default async function SearchDonorsPage({
                         {donor.blood_groups?.name}
                       </div>
                     </div>
-                    
+
                     <h3 className="text-lg font-bold text-gray-900 mb-1">{donor.profiles?.full_name || 'Anonymous Donor'}</h3>
                     <div className="flex items-center gap-1 text-gray-500 text-sm mb-6">
                       <MapPin className="w-4 h-4" /> {donor.city}
