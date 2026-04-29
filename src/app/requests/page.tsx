@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
 import { closeRequest } from '../actions/closeRequest';
 import AcceptRequestButton from '@/components/AcceptRequestButton';
+import LiveUpdatesListener from '@/components/LiveUpdatesListener';
 
 export default async function RequestsPage() {
   const supabase = await createClient();
@@ -26,6 +27,7 @@ export default async function RequestsPage() {
 
   return (
     <div className="max-w-5xl mx-auto py-8">
+      <LiveUpdatesListener />
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">Live Blood Requests</h1>

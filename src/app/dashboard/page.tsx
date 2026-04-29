@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { logDonation } from '../actions/donations';
 import { markNotificationsAsRead } from '../actions/notifications';
+import { toggleAvailability } from '../actions/donors';
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -44,7 +45,12 @@ export default async function DashboardPage() {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-red-100 font-medium mb-1">Welcome back,</p>
-                <h2 className="text-3xl font-bold">{fullName}</h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-3xl font-bold">{fullName}</h2>
+                  <a href="/dashboard/profile" className="text-xs bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-full transition-colors flex items-center gap-1">
+                    <Edit2 className="w-3 h-3" /> Edit Profile
+                  </a>
+                </div>
               </div>
               {profile?.role === 'donor' && (
                 <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
@@ -61,6 +67,15 @@ export default async function DashboardPage() {
                   {isEligible ? <BadgeCheck className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
                   {isEligible ? 'Ready to Donate' : 'In 90-Day Cooldown'}
                 </div>
+                {isEligible && (
+                  <form action={toggleAvailability} className="flex items-center bg-white/20 px-3 py-1.5 rounded-full backdrop-blur-sm gap-2">
+                    <span className="text-sm font-medium">Accepting requests?</span>
+                    <input type="hidden" name="is_available" value={donorFields?.is_available ? 'false' : 'true'} />
+                    <button type="submit" className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${donorFields?.is_available ? 'bg-green-500' : 'bg-gray-400/50'}`}>
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${donorFields?.is_available ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
+                  </form>
+                )}
               </div>
             )}
           </div>

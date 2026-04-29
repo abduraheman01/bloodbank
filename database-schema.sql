@@ -40,7 +40,7 @@ CREATE TABLE requests (
     contact_number TEXT NOT NULL,
     location TEXT NOT NULL,
     urgency TEXT CHECK (urgency IN ('High', 'Medium', 'Low')) DEFAULT 'High',
-    status TEXT CHECK (status IN ('Open', 'Closed', 'Fulfilled')) DEFAULT 'Open',
+    status TEXT CHECK (status IN ('Open', 'Pending', 'Fulfilled')) DEFAULT 'Open',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now())
 );
 
@@ -92,3 +92,40 @@ CREATE POLICY "Donors can view their own history." ON donations FOR SELECT USING
 CREATE POLICY "Users can view their own notifications." ON notifications FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "System can insert notifications." ON notifications FOR INSERT WITH CHECK (true);
 CREATE POLICY "Users can update their own notifications (mark as read)." ON notifications FOR UPDATE USING (auth.uid() = user_id);
+
+-- 8. PostgreSQL Triggers for 90-Day Eligibility Rule
+
+-- Function to automatically set is_available to FALSE after a donation
+CREATE OR REPLACE FUNCTION update_donor_availability_on_donation()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE donors 
+    SET last_donation_date = NEW.donation_date,
+        is_available = FALSE
+    WHERE id = NEW.donor_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER after_donation_insert
+AFTER INSERT ON donations
+FOR EACH ROW
+EXECUTE FUNCTION update_donor_availability_on_donation();
+
+-- Function to prevent setting is_available to TRUE if within 90 days
+CREATE OR REPLACE FUNCTION enforce_90_day_rule()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.is_available = TRUE AND NEW.last_donation_date IS NOT NULL THEN
+        IF NEW.last_donation_date > CURRENT_DATE - INTERVAL '90 days' THEN
+            RAISE EXCEPTION 'Donor cannot be available within 90 days of last donation.';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER before_donor_update
+BEFORE UPDATE ON donors
+FOR EACH ROW
+EXECUTE FUNCTION enforce_90_day_rule();
